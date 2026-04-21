@@ -129,8 +129,8 @@ export default function ExhibitionManagePage() {
 
       if (fetchError) throw fetchError
 
-      let assignedBoothId = null
-      let boothNumber = null
+      let assignedBoothId: string | null = null
+      let boothNumber: string | null = null
 
       if (newStatus === 'approved') {
         // Ищем первый свободный стенд в этой выставке
