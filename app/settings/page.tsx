@@ -98,12 +98,12 @@ export default function SettingsProfilePage() {
       // 2. Обновляем профиль в user_profiles
       const { error } = await updateUserProfile(user.id, {
         name: formData.name.trim(),
-        company: formData.company.trim() || null,
-        phone: formData.phone.trim() || null,
-        position: formData.position.trim() || null,
-        about: formData.about.trim() || null,
-        website: formData.website.trim() || null,
-        avatar_url: formData.avatar_url.trim() || null,
+        company: formData.company.trim() || undefined,
+        phone: formData.phone.trim() || undefined,
+        position: formData.position.trim() || undefined,
+        about: formData.about.trim() || undefined,
+        website: formData.website.trim() || undefined,
+        avatar_url: formData.avatar_url.trim() || undefined,
       })
 
       if (error) throw error
