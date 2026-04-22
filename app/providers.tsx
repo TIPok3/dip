@@ -153,7 +153,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setUser(null)
         profileCache.clear()
       } else if (event === 'USER_UPDATED' && session?.user) {
-        // Инвалидируем кэш и загружаем заново
         profileCache.delete(session.user.id)
         await fetchUserProfile(session.user)
       }
@@ -260,15 +259,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
       }
 
-      if (data.user && !data.session) {
-        return {
-          success: true,
-          needsEmailVerification: true,
-          message: 'Проверьте вашу почту для подтверждения регистрации',
-        }
-      }
+      if (data.user) {
+        // Вручную создаём профиль в user_profiles
+        const { error: profileError } = await supabase
+          .from('user_profiles')
+          .upsert({
+            user_id: data.user.id,
+            email: data.user.email,
+            role: role,
+            name: name?.trim() || email.split('@')[0],
+            company: company?.trim() || null,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          }, { onConflict: 'user_id' })
 
-      if (data.user && data.session) {
+        if (profileError) {
+          console.error('Ошибка создания профиля:', profileError)
+          // Продолжаем, даже если профиль не создался (он может уже существовать)
+        }
+
+        if (!data.session) {
+          return {
+            success: true,
+            needsEmailVerification: true,
+            message: 'Проверьте вашу почту для подтверждения регистрации',
+          }
+        }
+
         const redirectPath =
           role === 'organizer'
             ? '/dashboard/organizer'
